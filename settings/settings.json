@@ -1,0 +1,27 @@
+{
+  "env": {
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "70",
+    "BASH_MAX_OUTPUT_LENGTH": "20000",
+    "MAX_MCP_OUTPUT_TOKENS": "8000",
+    "CLAUDE_CODE_EFFORT_LEVEL": "medium"
+  },
+  "permissions": {
+    "deny": [
+      "Read(./secrets/**)",
+      "Read(./node_modules/**)",
+      "Read(./dist/**)",
+      "Read(./build/**)",
+      "Read(./coverage/**)",
+      "Read(./.next/**)",
+      "Read(./tmp/**)",
+      "Read(./logs/**)",
+      "Read(./*.log)"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "jq -r '\"[\\(.model.display_name)] \\(.context_window.used_percentage // 0)% context\"'"
+  },
+  "theme": "dark",
+  "model": "opus[1m]"
+}
