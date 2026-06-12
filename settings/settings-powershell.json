@@ -20,7 +20,7 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "~/.claude/statusline.sh"
+    "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/<YourName>/.claude/statusline.ps1"
   },
   "theme": "dark",
   "model": "sonnet"

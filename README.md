@@ -34,8 +34,12 @@ cp -v agents/*.md ~/.claude/agents/
 # 3. Copy all skills (each skill is its own directory)
 cp -rv skills/* ~/.claude/skills/
 
-# 4. Copy the global settings
-cp -v settings/settings.json ~/.claude/settings.json
+# 4. Copy the status line script and make it executable
+cp settings/statusline.sh ~/.claude/statusline.sh
+chmod +x ~/.claude/statusline.sh
+
+# 5. Copy the platform settings (already points to ~/.claude/statusline.sh)
+cp -v settings/settings-bash.json ~/.claude/settings.json
 ```
 
 #### Re-syncing / updates (recommended)
@@ -45,24 +49,8 @@ cp -v settings/settings.json ~/.claude/settings.json
 ```bash
 rsync -av agents/  ~/.claude/agents/
 rsync -av skills/  ~/.claude/skills/
-rsync -av settings/settings.json ~/.claude/settings.json
-```
-
-#### Status Line
-
-```bash
-# Copy and make executable
-cp settings/statusline.sh ~/.claude/statusline.sh
-chmod +x ~/.claude/statusline.sh
-```
-
-Then set `statusLine` in `~/.claude/settings.json`:
-
-```json
-"statusLine": {
-  "type": "command",
-  "command": "~/.claude/statusline.sh"
-}
+cp settings/statusline.sh ~/.claude/statusline.sh && chmod +x ~/.claude/statusline.sh
+rsync -av settings/settings-bash.json ~/.claude/settings.json
 ```
 
 Requires `jq` (`brew install jq` / `apt install jq`). `git` is optional — the script degrades gracefully when not in a repo.
@@ -81,8 +69,13 @@ Copy-Item agents\*.md "$env:USERPROFILE\.claude\agents\"
 # 3. Copy all skills (each skill is its own directory)
 Copy-Item skills\* "$env:USERPROFILE\.claude\skills\" -Recurse
 
-# 4. Copy the global settings
-Copy-Item settings\settings.json "$env:USERPROFILE\.claude\settings.json"
+# 4. Copy the status line script
+Copy-Item settings\statusline.ps1 "$env:USERPROFILE\.claude\statusline.ps1"
+
+# 5. Copy the platform settings and inject your username into the statusLine path
+$settings = Get-Content settings\settings-powershell.json -Raw
+$settings = $settings -replace '<YourName>', $env:USERNAME
+$settings | Set-Content "$env:USERPROFILE\.claude\settings.json" -Encoding utf8
 ```
 
 #### Re-syncing / updates (recommended)
@@ -92,25 +85,13 @@ Copy-Item settings\settings.json "$env:USERPROFILE\.claude\settings.json"
 ```powershell
 robocopy agents  "$env:USERPROFILE\.claude\agents"  *.md /NFL /NDL
 robocopy skills  "$env:USERPROFILE\.claude\skills"  /E   /NFL /NDL
-Copy-Item settings\settings.json "$env:USERPROFILE\.claude\settings.json" -Force
+Copy-Item settings\statusline.ps1 "$env:USERPROFILE\.claude\statusline.ps1" -Force
+$settings = Get-Content settings\settings-powershell.json -Raw
+$settings = $settings -replace '<YourName>', $env:USERNAME
+$settings | Set-Content "$env:USERPROFILE\.claude\settings.json" -Encoding utf8
 ```
 
-#### Status Line
-
-```powershell
-Copy-Item settings\statusline.ps1 "$env:USERPROFILE\.claude\statusline.ps1"
-```
-
-Then set `statusLine` in `%USERPROFILE%\.claude\settings.json`. Use your actual Windows username in the path and forward slashes inside the JSON string:
-
-```json
-"statusLine": {
-  "type": "command",
-  "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/<YourName>/.claude/statusline.ps1"
-}
-```
-
-If you have PowerShell 7 installed, swap `powershell` for `pwsh`. Windows Terminal is recommended for correct ANSI / UTF-8 rendering. No `jq` required — the script uses PowerShell's native JSON parser.
+If you have PowerShell 7 installed, open `~/.claude/settings.json` after install and swap `powershell` for `pwsh` in the `statusLine.command` value. Windows Terminal is recommended for correct ANSI / UTF-8 rendering. No `jq` required — the script uses PowerShell's native JSON parser.
 
 ---
 
@@ -662,11 +643,17 @@ After installing, restart Claude Code (or start a new session). The agents becom
 
 ## ⚙️ Settings
 
-The [`settings/`](settings/) directory contains the global Claude Code configuration file:
+The [`settings/`](settings/) directory contains platform-specific Claude Code configuration files:
 
-### [`settings.json`](settings/settings.json)
+| File | Platform | Status Line Script |
+| --- | --- | --- |
+| [`settings-bash.json`](settings/settings-bash.json) | Linux / macOS | `~/.claude/statusline.sh` |
+| [`settings-powershell.json`](settings/settings-powershell.json) | Windows | `powershell … statusline.ps1` (username injected at install time) |
+| [`settings.json`](settings/settings.json) | Generic fallback | `~/.claude/statusline.sh` |
 
-**`env`** — environment variables that tune the Claude Code harness. Each one:
+All three files share the same base configuration:
+
+**`env`** — environment variables that tune the Claude Code harness:
 
 | Variable | Value | What it does |
 | --- | --- | --- |
@@ -677,7 +664,7 @@ The [`settings/`](settings/) directory contains the global Claude Code configura
 
 Other keys:
 - **`permissions.deny`** — read guardrails that block sensitive/noisy paths (`./secrets/**`, `node_modules`, build/dist/coverage/.next, logs, `*.log`).
-- **`statusLine`** — a command-based status line showing the active model and context-window usage percentage (via `jq`).
+- **`statusLine`** — runs the platform-specific status line script (model, dir, git branch, context bar, cost, rate limits).
 - **`theme`** — `dark`.
 - **`model`** — `sonnet`.
 
