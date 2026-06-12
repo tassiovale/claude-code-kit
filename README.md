@@ -7,7 +7,7 @@ A curated collection of **agents**, **skills**, and **settings** that supercharg
 | Component | Count | Location | Installs to |
 | --- | --- | --- | --- |
 | **Agents** | 133 specialized subagents | [`agents/`](agents/) | `~/.claude/agents/` |
-| **Skills** | 190 reusable skills | [`skills/`](skills/) | `~/.claude/skills/` |
+| **Skills** | 197 reusable skills | [`skills/`](skills/) | `~/.claude/skills/` |
 | **Settings** | Global config + permissions | [`settings/`](settings/) | `~/.claude/` |
 
 - **Agents** are role-focused subagents (language experts, reviewers, architects, etc.) that Claude Code can delegate work to.
@@ -47,6 +47,47 @@ rsync -av settings/settings.json       ~/.claude/settings.json
 > **Heads up — settings.** Copying `settings.json` overwrites your existing global Claude Code settings. If you already have a customized `~/.claude/settings.json`, back it up first (`cp ~/.claude/settings.json ~/.claude/settings.json.bak`) and merge by hand instead of overwriting.
 
 > **Note.** The `agents/` folder also contains a `CLAUDE.md` and an `AGENTS-REFERENCE.md`. These are reference/instruction docs, not agents — you can skip copying them, or copy them deliberately if you want their guidance.
+
+### Status Line
+
+The kit ships two richer status-line scripts that replace the plain `jq` one-liner bundled in `settings.json`. Both display model name, working directory, git branch (staged / modified counts), a 10-block context bar, session cost, and rate-limit percentages — all in two compact lines.
+
+**Linux / macOS**
+
+```bash
+# 1. Copy the script
+cp settings/statusline.sh ~/.claude/statusline.sh
+chmod +x ~/.claude/statusline.sh
+```
+
+Then point `statusLine` in `~/.claude/settings.json` to it:
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "~/.claude/statusline.sh"
+}
+```
+
+Requires `jq` (`brew install jq` / `apt install jq`). `git` is optional — the script degrades gracefully when not in a repo.
+
+**Windows (PowerShell)**
+
+```powershell
+# 1. Copy the script
+Copy-Item settings\statusline.ps1 "$env:USERPROFILE\.claude\statusline.ps1"
+```
+
+Then point `statusLine` in `%USERPROFILE%\.claude\settings.json` to it:
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/<YourName>/.claude/statusline.ps1"
+}
+```
+
+Replace `<YourName>` with your Windows username (forward slashes in the JSON path). If you have PowerShell 7 installed, swap `powershell` for `pwsh`. Windows Terminal is recommended for correct ANSI / UTF-8 rendering. No `jq` required — the script uses PowerShell's native JSON parser.
 
 After installing, restart Claude Code (or start a new session). The agents become available for delegation, and skills trigger automatically based on their descriptions.
 
@@ -273,7 +314,22 @@ After installing, restart Claude Code (or start a new session). The agents becom
 
 ## 🧩 Skills
 
-190 skills, each packaged as a directory containing a `SKILL.md` (and supporting scripts/templates). Skills trigger automatically based on their descriptions. Grouped below by domain.
+197 skills, each packaged as a directory containing a `SKILL.md` (and supporting scripts/templates). Skills trigger automatically based on their descriptions. Grouped below by domain.
+
+<details>
+<summary><strong>Token Efficiency / Caveman</strong></summary>
+
+| Skill | Description |
+| --- | --- |
+| [caveman](skills/caveman/) | Ultra-compressed communication mode (~75% token reduction). Lite / full / ultra / wenyan variants. Trigger: `/caveman`. |
+| [caveman-commit](skills/caveman-commit/) | Terse Conventional Commits messages. ≤50-char subject, body only when "why" isn't obvious. Trigger: `/caveman-commit`. |
+| [caveman-compress](skills/caveman-compress/) | Compress `.md` memory files to caveman prose (~46% input-token savings). Backs up originals. Trigger: `/caveman-compress <file>`. |
+| [caveman-help](skills/caveman-help/) | Quick-reference card for all caveman modes, skills, and commands. One-shot display. Trigger: `/caveman-help`. |
+| [caveman-review](skills/caveman-review/) | Ultra-compressed PR review: one line per finding — location, problem, fix. Trigger: `/caveman-review`. |
+| [caveman-stats](skills/caveman-stats/) | Show real token usage and estimated savings for the current session via hook. Trigger: `/caveman-stats`. |
+| [cavecrew](skills/cavecrew/) | Decision guide for delegating to caveman-style subagents (~60% smaller tool results vs vanilla agents). |
+
+</details>
 
 <details>
 <summary><strong>Claude Code Workflow & Engineering Practice</strong></summary>
@@ -603,7 +659,7 @@ Other keys:
 ```
 claude-code-kit/
 ├── agents/      # 133 subagent .md definitions (+ CLAUDE.md, AGENTS-REFERENCE.md)
-├── skills/      # 190 skill directories, each with a SKILL.md
+├── skills/      # 197 skill directories, each with a SKILL.md
 ├── settings/    # settings.json (global config)
 └── README.md
 ```
