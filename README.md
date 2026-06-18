@@ -745,16 +745,35 @@ All hooks write structured JSONL entries to `~/.claude/hooks-logs/YYYY-MM-DD.jso
 
 ---
 
+## 💬 Prompting Tips
+
+[`prompting_tips.md`](prompting_tips.md) is a **reference handbook** for writing effective Claude Code prompts. It covers the 4 main prompt templates used in practice, with detailed field descriptions, filled-in examples, and patterns for invoking skills and subagents.
+
+| Section | What it covers |
+| --- | --- |
+| **Template 1 — Development Task** | `[CONTEXT]` / `[TASK]` / `[CONSTRAINTS]` / `[ACCEPTANCE CRITERIA]` structure for implementing or modifying code. |
+| **Template 2 — Bug Hunt** | 4-step protocol: Understand → Hypothesize → Reproduce → Fix. Each step is a separate prompt. |
+| **Template 3 — Test Generation** | Happy-path + edge-case scenario structure that prevents Claude from forgetting error conditions. |
+| **Template 4 — User Story Generation** | Job Story + Gherkin acceptance criteria for backlog grooming and feature specification. |
+| **Invoking Skills** | How skill auto-invocation works, when it fires, and how to reinforce triggers. |
+| **Invoking Subagents** | `@name` explicit call, proactive auto-invocation via `description`, and parallel Task-tool orchestration. |
+| **Combining Skills + Subagents + MCP** | Real-world examples mixing all three mechanisms. |
+
+A pocket cheatsheet at the end summarises all four templates on a single printable card.
+
+---
+
 ## 📁 Repository Layout
 
 ```
 claude-code-kit/
-├── agents/      # 133 subagent .md definitions (+ CLAUDE.md, AGENTS-REFERENCE.md)
-├── skills/      # 197 skill directories, each with a SKILL.md
+├── agents/           # 133 subagent .md definitions (+ CLAUDE.md, AGENTS-REFERENCE.md)
+├── skills/           # 197 skill directories, each with a SKILL.md
 ├── hooks/
 │   ├── pre-tool-use/   # block-dangerous-commands.js, protect-secrets.js
 │   ├── post-tool-use/  # auto-stage.js
 │   └── notification/   # notify-permission.js
-├── settings/    # settings.json (global config)
+├── settings/         # settings.json (global config)
+├── prompting_tips.md # Prompt templates and skill/subagent invocation guide
 └── README.md
 ```
