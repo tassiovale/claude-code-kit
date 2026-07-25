@@ -761,6 +761,8 @@ All hooks write structured JSONL entries to `~/.claude/hooks-logs/YYYY-MM-DD.jso
 
 A pocket cheatsheet at the end summarises all four templates on a single printable card.
 
+For the **spec-driven development** workflow (constitution → spec → plan → tasks before code), see [`speckit_cheatsheet.md`](speckit_cheatsheet.md) — a quick reference for [GitHub Spec Kit](https://github.com/github/spec-kit): install steps, CLI commands, the `/speckit.*` slash commands, and a worked example.
+
 ---
 
 ## 📁 Repository Layout
@@ -774,6 +776,7 @@ claude-code-kit/
 │   ├── post-tool-use/  # auto-stage.js
 │   └── notification/   # notify-permission.js
 ├── settings/         # settings.json (global config)
-├── prompting_tips.md # Prompt templates and skill/subagent invocation guide
+├── prompting_tips.md   # Prompt templates and skill/subagent invocation guide
+├── speckit_cheatsheet.md # Spec Kit (spec-driven development) quick reference
 └── README.md
 ```
